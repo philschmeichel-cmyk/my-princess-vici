@@ -76,7 +76,7 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // Your photos of Vici (still here but now SUPER rare so no lag)
+        // Your photos of Vici
         const girlPhotos = [
             "https://i.imgur.com/tfDlFIo.jpeg", "https://i.imgur.com/7oOazgr.jpeg",
             "https://i.imgur.com/F8xLwvu.jpeg", "https://i.imgur.com/qp2gStZ.jpeg",
@@ -110,6 +110,10 @@
             "YOU ARE MY WORLD ✨", "I LOVE YOU BABY", "FOREVER YOURS 💕"
         ];
 
+        // 🔥 NEW: 2-second cooldown for clicks/taps
+        let lastBurstTime = 0;
+        const BURST_COOLDOWN = 2000; // 2 seconds in milliseconds
+
         class Star {
             constructor() {
                 this.x = Math.random() * width;
@@ -133,13 +137,13 @@
             constructor(x, y, size = 32) {
                 this.x = x; this.y = y;
                 this.size = size;
-                this.vy = -(Math.random() * 2.8 + 1.8);     // smooth & gentle upward
-                this.vx = (Math.random() - 0.5) * 2.2;      // soft left/right movement
+                this.vy = -(Math.random() * 2.8 + 1.8);
+                this.vx = (Math.random() - 0.5) * 2.2;
                 this.rotation = Math.random() * Math.PI * 2;
                 this.rotSpeed = (Math.random() - 0.5) * 0.04;
                 this.color = Math.random() > 0.5 ? '#ff1493' : '#ff69b4';
                 this.life = 255;
-                this.sway = Math.random() * Math.PI * 2;    // extra gentle "move around"
+                this.sway = Math.random() * Math.PI * 2;
             }
             update() {
                 this.y += this.vy;
@@ -149,14 +153,14 @@
                 this.rotation += this.rotSpeed;
                 this.life -= 1.8;
                 this.sway += 0.035;
-                this.vx += Math.sin(this.sway) * 0.12;     // makes them drift around smoothly
+                this.vx += Math.sin(this.sway) * 0.12;
             }
             draw() {
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.rotation);
                 ctx.shadowColor = this.color;
-                ctx.shadowBlur = 15;                       // much lighter = no lag
+                ctx.shadowBlur = 15;
                 ctx.font = `${this.size}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -188,7 +192,7 @@
                 this.rotation += this.rotSpeed;
                 this.alpha -= 2.8;
                 this.sway += 0.028;
-                this.vx += Math.sin(this.sway) * 0.1;      // smooth drifting
+                this.vx += Math.sin(this.sway) * 0.1;
             }
             draw() {
                 ctx.save();
@@ -242,7 +246,7 @@
 
         function createStars() {
             stars = [];
-            for (let i = 0; i < 160; i++) {        // very light
+            for (let i = 0; i < 160; i++) {
                 stars.push(new Star());
             }
         }
@@ -254,7 +258,7 @@
             for (let i = 0; i < 12; i++) hearts.push(new HeartParticle(Math.random() * width, height * 0.8 + Math.random() * height * 0.2));
             for (let i = 0; i < 5; i++) textParticles.push(new TextParticle(Math.random() * width, height * 0.7 + Math.random() * height * 0.3));
             if (girlImages.length > 0) {
-                for (let i = 0; i < 2; i++) {      // only 2 photos at start
+                for (let i = 0; i < 2; i++) {
                     const img = girlImages[Math.floor(Math.random() * girlImages.length)];
                     imageParticles.push(new ImageParticle(Math.random() * width, height + 60, img));
                 }
@@ -262,6 +266,10 @@
         }
 
         function burst(x, y) {
+            const now = Date.now();
+            if (now - lastBurstTime < BURST_COOLDOWN) return; // cooldown active → ignore click
+            lastBurstTime = now;
+
             for (let i = 0; i < 18; i++) {
                 const hx = x + (Math.random() - 0.5) * 180;
                 const hy = y + (Math.random() - 0.5) * 180;
@@ -276,11 +284,9 @@
             }
             if (girlImages.length > 0 && Math.random() > 0.75) {
                 const img = girlImages[Math.floor(Math.random() * girlImages.length)];
-                for (let i = 0; i < 1; i++) {      // almost never
-                    const ip = new ImageParticle(x + (Math.random() - 0.5) * 90, y + (Math.random() - 0.5) * 90, img);
-                    ip.vy = -(Math.random() * 5 + 2.5);
-                    imageParticles.push(ip);
-                }
+                const ip = new ImageParticle(x + (Math.random() - 0.5) * 90, y + (Math.random() - 0.5) * 90, img);
+                ip.vy = -(Math.random() * 5 + 2.5);
+                imageParticles.push(ip);
             }
         }
 
@@ -310,7 +316,6 @@
                 else imageParticles.splice(i, 1);
             }
 
-            // SUPER gentle spawn rates → buttery smooth
             if (Math.random() < 0.18) hearts.push(new HeartParticle(Math.random() * width, height + 30));
             if (Math.random() < 0.065) textParticles.push(new TextParticle(Math.random() * width, height + 90));
             if (girlImages.length > 0 && Math.random() < 0.025) {
@@ -321,6 +326,7 @@
             requestAnimationFrame(animate);
         }
 
+        // Click + touch with 2-second cooldown
         canvas.addEventListener('click', e => burst(e.clientX, e.clientY));
         canvas.addEventListener('touchstart', e => {
             if (e.touches.length) burst(e.touches[0].clientX, e.touches[0].clientY);
@@ -331,7 +337,7 @@
             createStars();
             initParticles();
             animate();
-            console.log('%c💖 VICI LOVE SITE – now super smooth & gentle!', 'color:#ff1493;font-size:20px;font-weight:900');
+            console.log('%c💖 VICI LOVE SITE – smooth + 2s click cooldown added!', 'color:#ff1493;font-size:20px;font-weight:900');
 
             setInterval(() => {
                 if (Math.random() < 0.65) burst(Math.random() * width, Math.random() * height * 0.75);
