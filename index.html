@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>mygirlisthebest.com 💖🐻</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            margin: 0; overflow: hidden; background: #0a001f;
+            font-family: 'Poppins', sans-serif; height: 100vh; width: 100vw;
+            background-image: linear-gradient(rgba(10,0,31,0.75), rgba(10,0,31,0.9)), url('https://i.imgur.com/DEIN-HERZ-BILD.png');
+            background-size: cover; background-position: center; background-attachment: fixed;
+        }
+        canvas { display:block; position:absolute; top:0; left:0; z-index:1; }
+        .overlay { 
+            position:absolute; top:0; left:0; width:100%; height:100%; z-index:2; pointer-events:none;
+            display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px; 
+        }
+        .main-text {
+            font-size: clamp(3.5rem, 11vw, 10rem); font-weight:900;
+            background: linear-gradient(90deg, #ff1493, #ff69b4, #ff00cc, #ff1493);
+            -webkit-background-clip:text; background-clip:text; color:transparent;
+            text-shadow: 0 0 60px rgba(255,20,147,0.95), 0 0 120px rgba(255,105,180,0.9);
+            animation: pulse 1.4s infinite ease-in-out; margin-bottom:10px; letter-spacing:-10px; line-height:0.85;
+        }
+        .subtitle { 
+            font-size: clamp(1.8rem, 6vw, 3.8rem); color:#fff; 
+            text-shadow:0 0 50px #ff1493; margin-bottom:30px; animation: sparkle 2s infinite; 
+        }
+        .heart-float { font-size:6rem; animation: floatHeart 2.5s infinite ease-in-out; filter:drop-shadow(0 0 40px #ff1493); }
+        @keyframes pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.08); } }
+        @keyframes floatHeart { 0%,100% { transform:translateY(0) rotate(0deg); } 50% { transform:translateY(-55px) rotate(25deg); } }
+        @keyframes sparkle { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+        .footer { 
+            position:absolute; bottom:30px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.8); 
+            font-size:1.3rem; z-index:3; text-shadow:0 0 25px #ff1493; letter-spacing:4px; 
+        }
+        .qr-container {
+            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+            z-index: 3; background: rgba(255,255,255,0.1); padding: 12px; border-radius: 20px;
+            box-shadow: 0 0 40px rgba(255,20,147,0.6); backdrop-filter: blur(10px);
+        }
+        .qr-container img {
+            width: 160px; height: 160px; border-radius: 15px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="overlay">
+        <div class="main-text">MY PRINCESS VICI</div>
+        <div class="subtitle">I LOVE YOU BABY 💖🐻</div>
+        <div class="heart-float">💖</div>
+    </div>
+
+    <!-- QR-Code Platzhalter – ersetze gleich den Link, wenn du ihn hast -->
+    <div class="qr-container">
+        <img src="https://i.imgur.com/4Ig5VT8.png" alt="Scan me for endless love">
+        <p style="color:#fff; font-size:0.9rem; margin-top:8px; text-align:center; text-shadow:0 0 15px #ff1493;">Scan this QR → pure love for Vici</p>
+    </div>
+
+    <div class="footer">made with endless love for my princess vici • mygirlisthebest.com</div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // 🔥 ALLE DEINE FOTOS VON VICI – jetzt komplett eingebaut (15 Stück)
+        const girlPhotos = [
+            "https://i.imgur.com/tfDlFIo.jpeg",   // Spiegel-Selfie (das du als letztes geschickt hast)
+            "https://i.imgur.com/7oOazgr.jpeg",
+            "https://i.imgur.com/F8xLwvu.jpeg",
+            "https://i.imgur.com/qp2gStZ.jpeg",
+            "https://i.imgur.com/Ymh4eJ3.jpeg",
+            "https://i.imgur.com/zSBBXGu.jpeg",
+            "https://i.imgur.com/nHycY3E.jpeg",
+            "https://i.imgur.com/awQbbaN.jpeg",
+            "https://i.imgur.com/NRAKQiJ.jpeg",
+            "https://i.imgur.com/qnCQysb.jpeg",
+            "https://i.imgur.com/VotXEfp.jpeg",
+            "https://i.imgur.com/F6ThkCG.jpeg",
+            "https://i.imgur.com/iYizySD.jpeg",
+            "https://i.imgur.com/Q2Zd10z.jpeg",
+            "https://i.imgur.com/gJqysXK.jpeg"
+        ];
+
+        let girlImages = [];
+        function preloadImages() {
+            girlPhotos.forEach(url => {
+                if (url) {
+                    const img = new Image();
+                    img.src = url;
+                    img.crossOrigin = "anonymous";
+                    girlImages.push(img);
+                }
+            });
+        }
+
+        let stars = [];
+        let hearts = [];
+        let textParticles = [];
+        let imageParticles = [];
+
+        const phrases = [
+            "I LOVE YOUUU VICI 💖",
+            "MY PRINCESS VICI",
+            "VICI BABY 🐻",
+            "YOU ARE MY WORLD ✨",
+            "I LOVE YOU BABY",
+            "FOREVER YOURS 💕",
+            "VICI MY QUEEN",
+            "MY EVERYTHING"
+        ];
+
+        class Star {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 2.5 + 0.5;
+                this.twinkleSpeed = Math.random() * 0.03 + 0.01;
+                this.twinkle = Math.random() * Math.PI * 2;
+            }
+            update() { this.twinkle += this.twinkleSpeed; }
+            draw() {
+                const alpha = Math.sin(this.twinkle) * 0.5 + 0.5;
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        class HeartParticle {
+            constructor(x, y, size = 35) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.vy = -(Math.random() * 4 + 3);
+                this.vx = (Math.random() - 0.5) * 3;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotSpeed = (Math.random() - 0.5) * 0.08;
+                this.color = Math.random() > 0.5 ? '#ff1493' : '#ff69b4';
+                this.life = 255;
+            }
+            update() {
+                this.y += this.vy;
+                this.x += this.vx;
+                this.vy *= 0.98;
+                this.vx *= 0.98;
+                this.rotation += this.rotSpeed;
+                this.life -= 2;
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.font = `${this.size}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = 25;
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.life / 255;
+                ctx.fillText('💖', 0, 0);
+                ctx.restore();
+            }
+        }
+
+        class TextParticle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.text = phrases[Math.floor(Math.random() * phrases.length)];
+                this.size = Math.random() * 55 + 25;
+                this.vy = -(Math.random() * 5 + 4);
+                this.vx = (Math.random() - 0.5) * 4;
+                this.rotation = (Math.random() - 0.5) * 0.3;
+                this.rotSpeed = (Math.random() - 0.5) * 0.025;
+                this.alpha = 255;
+                this.hue = 300 + Math.random() * 40;
+            }
+            update() {
+                this.y += this.vy;
+                this.x += this.vx;
+                this.vy *= 0.975;
+                this.vx *= 0.975;
+                this.rotation += this.rotSpeed;
+                this.alpha -= 2.5;
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.shadowColor = `hsl(${this.hue}, 100%, 80%)`;
+                ctx.shadowBlur = 40;
+                ctx.font = `900 ${this.size}px Poppins`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = `hsla(${this.hue}, 100%, 95%, ${this.alpha / 255})`;
+                ctx.fillText(this.text, 0, 0);
+                ctx.restore();
+            }
+        }
+
+        class ImageParticle {
+            constructor(x, y, img) {
+                this.x = x;
+                this.y = y;
+                this.img = img;
+                this.size = Math.random() * 110 + 70;
+                this.vy = -(Math.random() * 2.5 + 1.5);
+                this.vx = (Math.random() - 0.5) * 2.5;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotSpeed = (Math.random() - 0.5) * 0.04;
+                this.alpha = 220;
+            }
+            update() {
+                this.y += this.vy;
+                this.x += this.vx;
+                this.vy *= 0.98;
+                this.vx *= 0.98;
+                this.rotation += this.rotSpeed;
+                this.alpha -= 1;
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.globalAlpha = this.alpha / 255;
+                ctx.shadowColor = '#ff1493';
+                ctx.shadowBlur = 25;
+                const aspect = this.img.width / this.img.height || 1;
+                ctx.drawImage(this.img, -this.size * aspect / 2, -this.size / 2, this.size * aspect, this.size);
+                ctx.restore();
+            }
+        }
+
+        function createStars() {
+            stars = [];
+            for (let i = 0; i < 420; i++) {
+                stars.push(new Star());
+            }
+        }
+
+        function initParticles() {
+            hearts = [];
+            textParticles = [];
+            imageParticles = [];
+            for (let i = 0; i < 35; i++) hearts.push(new HeartParticle(Math.random() * width, height * 0.7 + Math.random() * height * 0.3));
+            for (let i = 0; i < 18; i++) textParticles.push(new TextParticle(Math.random() * width, height * 0.6 + Math.random() * height * 0.4));
+            if (girlImages.length > 0) {
+                for (let i = 0; i < 7; i++) {
+                    const img = girlImages[Math.floor(Math.random() * girlImages.length)];
+                    imageParticles.push(new ImageParticle(Math.random() * width, height + 80, img));
+                }
+            }
+        }
+
+        function burst(x, y) {
+            for (let i = 0; i < 55; i++) {
+                const hx = x + (Math.random() - 0.5) * 280;
+                const hy = y + (Math.random() - 0.5) * 280;
+                hearts.push(new HeartParticle(hx, hy, Math.random() * 45 + 25));
+            }
+            for (let i = 0; i < 18; i++) {
+                const tx = x + (Math.random() - 0.5) * 200;
+                const ty = y + (Math.random() - 0.5) * 200;
+                const tp = new TextParticle(tx, ty);
+                tp.vy = -(Math.random() * 9 + 6);
+                textParticles.push(tp);
+            }
+            if (girlImages.length > 0 && Math.random() > 0.5) {
+                const img = girlImages[Math.floor(Math.random() * girlImages.length)];
+                for (let i = 0; i < 4; i++) {
+                    const ip = new ImageParticle(x + (Math.random() - 0.5) * 120, y + (Math.random() - 0.5) * 120, img);
+                    ip.vy = -(Math.random() * 8 + 5);
+                    imageParticles.push(ip);
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            stars.forEach(star => { star.update(); star.draw(); });
+
+            for (let i = hearts.length - 1; i >= 0; i--) {
+                const h = hearts[i];
+                h.update();
+                if (h.life > 0 && h.y > -100) h.draw();
+                else hearts.splice(i, 1);
+            }
+
+            for (let i = textParticles.length - 1; i >= 0; i--) {
+                const t = textParticles[i];
+                t.update();
+                if (t.alpha > 0 && t.y > -150) t.draw();
+                else textParticles.splice(i, 1);
+            }
+
+            for (let i = imageParticles.length - 1; i >= 0; i--) {
+                const p = imageParticles[i];
+                p.update();
+                if (p.alpha > 0 && p.y > -p.size) p.draw();
+                else imageParticles.splice(i, 1);
+            }
+
+            if (Math.random() < 0.4) hearts.push(new HeartParticle(Math.random() * width, height + 40));
+            if (Math.random() < 0.22) textParticles.push(new TextParticle(Math.random() * width, height + 120));
+            if (girlImages.length > 0 && Math.random() < 0.09) {
+                const img = girlImages[Math.floor(Math.random() * girlImages.length)];
+                imageParticles.push(new ImageParticle(Math.random() * width, height + 100, img));
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        canvas.addEventListener('click', e => burst(e.clientX, e.clientY));
+        canvas.addEventListener('touchstart', e => {
+            if (e.touches.length) burst(e.touches[0].clientX, e.touches[0].clientY);
+        });
+
+        window.onload = () => {
+            preloadImages();
+            createStars();
+            initParticles();
+            animate();
+            console.log('%c💖 VICI ULTIMATE LOVE WEBSITE – ALLE DEINE FOTOS DRIN!', 'color:#ff1493;font-size:22px;font-weight:900');
+            setInterval(() => {
+                if (Math.random() < 0.75) burst(Math.random() * width, Math.random() * height * 0.7);
+            }, 3800);
+        };
+    </script>
+</body>
+</html>
